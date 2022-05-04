@@ -1,4 +1,4 @@
-package eid
+package global.lib.test
 
 menu[x] {
 	x := items[i].name
@@ -6,7 +6,7 @@ menu[x] {
 }
 
 items := [
-	{"name": "biryani", "done": false},
+	{"name": "biryani", "done": true},
 	{"name": "ghol", "done": false},
 	{"name": "sheer korma", "done": true},
 ]
