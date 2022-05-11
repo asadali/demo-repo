@@ -1,1 +1,3 @@
-# repo2
+# demo-repo
+
+just another repository
