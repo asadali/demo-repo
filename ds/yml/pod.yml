@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: systems
+    cicd.styra.com/environment: asad
+    cicd.styra.com/k8s-namespace: asad
+    cicd.styra.com/version: 1.0.0
+    pod-template-hash: c6657bbf9
+  name: systems-c6657bbf9-z5z5g
+  namespace: asad
+spec:
+  containers:
+  - args:
+    - --kms-key-id
+    - $(KMS_KEY_ID)
+    env:
+    - name: ENVIRONMENT_NAME
+      value: asad
+    - name: SERVICE_NAME
+      value: systems
+    - name: KMS_KEY_ID
+      value: dummy-id
+    image: styra/systems:1.0.0
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /v1/system/alive
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: systems
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /v1/system/ready
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 32Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /scratch
+      name: scratch-volume
+    - mountPath: /credentials
+      name: credentials-volume
+    - mountPath: /settings
+      name: settings-volume
+    - mountPath: /features
+      name: features-volume
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-vfxj2
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  securityContext:
+    fsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccount: default
+  serviceAccountName: default
+  volumes:
+  - emptyDir: {}
+    name: scratch-volume
+  - configMap:
+      defaultMode: 420
+      name: settings-3fdbb3723b2e6b025fa0a05a954222bb2a7265b9
+    name: settings-volume
+  - configMap:
+      defaultMode: 420
+      name: features
+    name: features-volume

@@ -1,30 +1,30 @@
-module "aws_reverse_proxy" {
-  # Available inputs: https://github.com/futurice/terraform-utils/tree/master/aws_reverse_proxy#inputs
-  # Check for updates: https://github.com/futurice/terraform-utils/compare/v11.0...master
-  source = "git::ssh://git@github.com/futurice/terraform-utils.git//aws_reverse_proxy?ref=v11.0"
-
-  # S3 website endpoints are only available over plain HTTP
-  origin_url = "http://${local.bucket_domain_name}/"
-
-  # Our S3 bucket will only allow requests containing this custom header
-  origin_custom_header_name = "User-Agent"
-
-  # Somewhat perplexingly, this is the "correct" way to ensure users can't bypass CloudFront on their way to S3 resources
-  # https://abridge2devnull.com/posts/2018/01/restricting-access-to-a-cloudfront-s3-website-origin/
-  origin_custom_header_value = "${random_string.s3_read_password.result}"
-
-  site_domain            = "${var.site_domain}"
-  name_prefix            = "${var.name_prefix}"
-  comment_prefix         = "${var.comment_prefix}"
-  cloudfront_price_class = "${var.cloudfront_price_class}"
-  viewer_https_only      = "${var.viewer_https_only}"
-  cache_ttl_override     = "${var.cache_ttl_override}"
-  default_root_object    = "${var.default_root_object}"
-  add_response_headers   = "${var.add_response_headers}"
-  basic_auth_username    = "${var.basic_auth_username}"
-  basic_auth_password    = "${var.basic_auth_password}"
-  basic_auth_realm       = "${var.basic_auth_realm}"
-  basic_auth_body        = "${var.basic_auth_body}"
-  lambda_logging_enabled = "${var.lambda_logging_enabled}"
-  tags                   = "${var.tags}"
+resource "aws_elastic_beanstalk_environment" "example" {
+  name        = "test_environment"
+  application = "testing"
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MinSize"
+    value     = "1"
+  }
+  dynamic "setting" {
+    for_each = data.consul_key_prefix.environment.var
+    content {
+    heredoc = <<-EOF
+    This is a heredoc template.
+    It references ${local.other.3}
+    EOF
+    simple = "${4 - 2}"
+    cond = test3 > 2 ? 1: 0
+    heredoc2 = <<EOF
+      Another heredoc, that
+      doesn't remove indentation
+      ${local.other.3}
+      %{if true ? false : true}"gotcha"\n%{else}4%{endif}
+    EOF
+    loop = "This has a for loop: %{for x in local.arr}x,%{endfor}"
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = setting.key
+    value     = setting.value
+    }
+  }
 }
